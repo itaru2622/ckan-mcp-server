@@ -4,25 +4,20 @@
 # (C) Ondics GmbH
 #
 
-FROM python:3.13.4-slim-bookworm
-
-ENV TZ="Europe/Berlin"
+ARG base=python:3.13-trixie
+FROM ${base}
+ARG base=python:3.13-trixie
 
 RUN apt-get update && apt-get install -y \
     vim \
     jq \
     git \
-    procps \
-    && rm -rf /var/lib/apt/lists/*
-
-# we need git
-WORKDIR /app
-RUN git init && \
-    git config user.name ondics && \
-    git config user.email info@ondics.de    
+    procps
 
 # ... and uv
 RUN pip install --no-cache-dir uv
+
+WORKDIR /app
 
 # these files are required to be published
 COPY README.md .
@@ -32,4 +27,6 @@ COPY pyproject.toml .
 COPY LICENSE .
 RUN pip install -r requirements.txt
 
-
+CMD python ./mcp_ckan_server.py
+ARG TZ="Europe/Berlin"
+ENV TZ=${TZ}
