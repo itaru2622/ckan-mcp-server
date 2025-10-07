@@ -28,10 +28,11 @@ logger = logging.getLogger("mcp-ckan-server")
 class CKANAPIClient:
     """CKAN API client for making HTTP requests"""
     
-    def __init__(self, base_url: str, api_key: Optional[str] = None):
+    def __init__(self, base_url: str, path_prefix: str = '/api/3/action/', api_key: Optional[str] = None):
         self.base_url = base_url.rstrip('/')
         self.api_key = api_key
         self.session = None
+        self.path_prefix=path_prefix
     
     async def __aenter__(self):
         ssl_context = ssl.create_default_context(cafile=certifi.where())
@@ -53,7 +54,7 @@ class CKANAPIClient:
     
     async def _make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict[str, Any]:
         """Make HTTP request to CKAN API"""
-        url = urljoin(f"{self.base_url}/api/3/action/", endpoint)
+        url = urljoin(f"{self.base_url}{self.path_prefix}", endpoint)
         headers = self._get_headers()
         
         try:
@@ -542,9 +543,11 @@ async def main():
         raise Exception("CKAN_URL environment variable is required")
     
     ckan_api_key = os.getenv("CKAN_API_KEY")
+    ckan_path_prefix = os.getenv("CKAN_PATH_PREFIX")
+
     
     global ckan_client
-    ckan_client = CKANAPIClient(ckan_url, ckan_api_key)
+    ckan_client = CKANAPIClient(ckan_url, path_prefix=ckan_path_prefix, api_key=ckan_api_key)
     
     # Start the CKAN client session
     await ckan_client.__aenter__()
