@@ -30,3 +30,5 @@ RUN pip install -r requirements.txt
 CMD python ./mcp_ckan_server.py
 ARG TZ="Europe/Berlin"
 ENV TZ=${TZ}
+ARG CKAN_PATH_PREFIX="/api/3/action/"
+ENV CKAN_PATH_PREFIX=${CKAN_PATH_PREFIX}
